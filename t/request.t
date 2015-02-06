@@ -32,7 +32,18 @@ sub accept_header {
 }
 
 sub encode_invalid {
-    
+    my $request = $tested_class->new;
+    my $scalar = 42;
+    ok(
+        exception { $request->add_json_content(\$scalar) },
+        'Cannot add arbitrary scalar references as JSON'
+    );
+    ok(
+        exception {
+            $request->add_json_content(bless 'foo' => 'Package::Thing')
+        },
+        'Cannot add blessed objects as JSON'
+    );
 }
 
 sub encode_valid {
