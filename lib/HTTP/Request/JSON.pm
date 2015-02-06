@@ -69,6 +69,9 @@ encoding errors.
 sub add_json_content {
     my ($self, $perl_data) = @_;
 
+    ### TODO: should we allow people to override these arguments?
+    ### Or does that not fit with a ::Tiny module?
+    ### Maybe pass them to LWP::JSON::Tiny as import parameters?
     my $json = JSON::MaybeXS->new(
         utf8            => 0,
         allow_nonref    => 1,
