@@ -23,7 +23,11 @@ sub isa {
     isa_ok($request, 'HTTP::Request', 'This is a subclass of HTTP::Request');
 }
 
-sub accept_header {}
+sub accept_header {
+    my $request = $tested_class->new;
+    is($request->headers->header('Accept'),
+        'application/json', 'The Accept header is automatically set');
+}
 
 sub encode_invalid {}
 

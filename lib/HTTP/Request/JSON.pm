@@ -32,6 +32,22 @@ First of all, it sets the Accept header to C<application/json> as soon
 as it's created. Secondly, it implements a L<add_json_content>
 method that adds the supplied data structure to the request, as JSON.
 
+=head2 new
+
+ In: ...
+ Out: $request
+
+As HTTP::Request->new, but also sets the Accept header.
+
+=cut
+
+sub new {
+    my $class = shift;
+    my $self = $class->SUPER::new(@_);
+    $self->header('Accept' => 'application/json');
+    return $self;
+}
+
 =head2 add_json_content
 
  In: $perl_data
