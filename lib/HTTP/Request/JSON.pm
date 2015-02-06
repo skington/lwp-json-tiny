@@ -4,11 +4,13 @@ use strict;
 use warnings;
 no warnings 'uninitialized';
 
-use LWP::JSON::Tiny;
 use parent 'HTTP::Request';
-use JSON::MaybeXS;
 
 our $VERSION = $LWP::JSON::Tiny::VERSION;
+
+use Encode ();
+use LWP::JSON::Tiny;
+use JSON::MaybeXS ();
 
 =head1 NAME
 
@@ -59,14 +61,23 @@ to be the JSON-encoded version of that data structure, and sets the
 Content-Type header to C<application/json>. Will throw an exception
 if the data structure cannot be converted to JSON.
 
+All strings in $perl_data must be Unicode strings, or you will get
+encoding errors.
+
 =cut
 
 sub add_json_content {
     my ($self, $perl_data) = @_;
 
-    my $json = JSON::MaybeXS->new(utf8 => 1);
-    $self->add_content_utf8($json->encode($perl_data));
-    $self->content_type('application/json;charset=utf8');
+    my $json = JSON::MaybeXS->new(
+        utf8            => 0,
+        allow_nonref    => 1,
+        allow_unknown   => 0,
+        allow_blessed   => 0,
+        convert_blessed => 0
+    );
+    $self->add_content(Encode::encode('UTF8', $json->encode($perl_data)));
+    $self->content_type('application/json');
     return $self->decoded_content;
 }
 
