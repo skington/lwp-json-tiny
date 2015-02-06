@@ -16,7 +16,7 @@ HTTP::Response::JSON - a subclass of HTTP::Response that understands JSON
 =head1 SYNOPSIS
 
  if ($response->isa('HTTP::Response::JSON')) {
-     record_data_structure($response->json_content);
+     Your::Own::Code::do_something($response->json_content);
  }
 
 =head1 DESCRIPTION
