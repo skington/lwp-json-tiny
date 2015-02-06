@@ -65,7 +65,8 @@ L<WWW::JSON> handles authentication (including favours of OAuth), common URL
 prefixes, response data structure transformations, but has the same
 limitations as JSON::API, as well as being potentially unwieldy.
 
-L<LWP::Simple::REST> I can't remember and the tab isn't loading.
+L<LWP::Simple::REST> decodes JSON but makes you use a wrapper object, and
+looks like a half-hearted attempt that never went anywhere.
 
 =head1 AUTHOR
 
