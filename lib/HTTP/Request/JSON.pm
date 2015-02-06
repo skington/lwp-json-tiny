@@ -6,6 +6,7 @@ no warnings 'uninitialized';
 
 use LWP::JSON::Tiny;
 use parent 'HTTP::Request';
+use JSON::MaybeXS;
 
 our $VERSION = $LWP::JSON::Tiny::VERSION;
 
@@ -63,7 +64,10 @@ if the data structure cannot be converted to JSON.
 sub add_json_content {
     my ($self, $perl_data) = @_;
 
-    $self->add_content_utf8($perl_data);
+    my $json = JSON::MaybeXS->new(utf8 => 1);
+    $self->add_content_utf8($json->encode($perl_data));
+    $self->content_type('application/json;charset=utf8');
+    return $self->decoded_content;
 }
 
 =head1 AUTHOR
