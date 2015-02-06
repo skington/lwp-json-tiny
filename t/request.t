@@ -1,4 +1,5 @@
 #!/usr/bin/env perl
+# Tests for HTTP::Request::JSON
 
 use charnames qw(:full);
 use strict;
@@ -18,7 +19,7 @@ encode_invalid();
 encode_valid();
 encode_unicode();
 
-done_testing();
+Test::More::done_testing();
 
 sub isa {
     my $request = $tested_class->new;
