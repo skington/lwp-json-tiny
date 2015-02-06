@@ -49,12 +49,15 @@ sub encode_invalid {
 
 sub encode_valid {
     my $request = $tested_class->new;
+    is($request->content_type, '', 'No content type at first');
     $request->add_json_content({foo => ['foo', 'bar', { baz => 'bletch'}]});
     is(
         $request->decoded_content,
         '{"foo":["foo","bar",{"baz":"bletch"}]}',
         'Simple JSON encoding worked'
     );
+    is($request->content_type, 'application/json',
+        'We have a content-type now');
 }
 
 sub encode_unicode {
