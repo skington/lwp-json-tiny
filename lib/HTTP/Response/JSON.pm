@@ -29,14 +29,17 @@ L<json_content> which returns the JSON-decoded contents of the response.
  Out: $perl_data
 
 Returns the Perl data structure corresponding to the contents of this
-response. Will throw an exception if the contents cannot be converted to
-JSON.
+response.
+
+Will throw an exception if the contents look like JSON but cannot be converted
+to JSON. Will return undef if the contents don't look like JSON.
 
 =cut
 
 sub json_content {
     my ($self) = @_;
 
+    return if $self->content_type !~ m{^ application/json }x;
     return $self->decoded_content;
 }
 
