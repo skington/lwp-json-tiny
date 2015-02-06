@@ -39,14 +39,14 @@ There are three classes in this distribution:
 
 A subclass of HTTP::Request. It automatically sets the Accept header to
 C<application/json>, and implements an
-L<HTTP::Request::JSON/add_content_json|add_content_json> method which takes
-a JSONable data structure and sets the content-type.
+L<HTTP::Request::JSONE<sol>add_content_jsonE<verbar>add_content_json> method
+which takes a JSONable data structure and sets the content-type.
 
 =item HTTP::Response::JSON
 
 A subclass of HTTP::Response. It implements a
-L<HTTP::Response::JSON/json_content|json_content> method which decodes the
-JSON contents into a Perl data structure.
+L<HTTP::Response::JSONE<sol>json_contentE<verbar>json_content> method which
+decodes the JSON contents into a Perl data structure.
 
 =item LWP::UserAgent::JSON
 
