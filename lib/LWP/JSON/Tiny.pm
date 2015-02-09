@@ -4,8 +4,11 @@ use strict;
 use warnings;
 no warnings 'uninitialized';
 
-use LWP;
+use HTTP::Request::JSON;
+use HTTP::Response::JSON;
 use JSON::MaybeXS;
+use LWP;
+use LWP::UserAgent::JSON;
 
 our $VERSION = '0.001';
 $VERSION = eval $VERSION;

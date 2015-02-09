@@ -5,6 +5,7 @@ use warnings;
 no warnings 'uninitialized';
 
 use LWP::JSON::Tiny;
+use Scalar::Util ();
 use parent 'LWP::UserAgent';
 
 our $VERSION = $LWP::JSON::Tiny::VERSION;
@@ -25,6 +26,26 @@ LWP::UserAgent::JSON - a subclass of LWP::UserAgent that understands JSON
 This is a simple subclass of LWP::UserAgent which recognises if it gets
 JSON output back, and if so returns an L<HTTP::Response::JSON> object instead
 of a HTTP::Response::JSON object.
+
+=head2 simple_request
+
+As LWP::UserAgent::simple_request, but returns a L<HTTP::Response:JSON>
+object instead of a L<HTTP::Response> object if the response is JSON.
+
+=cut
+
+sub simple_request {
+    my $self = shift;
+
+    my $response = $self->SUPER::simple_request(@_);
+    if (   Scalar::Util::blessed($response)
+        && $response->isa('HTTP::Response')
+        && $response->content_type eq 'application/json')
+    {
+        bless $response => 'HTTP::Response::JSON';
+    }
+    return $response;
+}
 
 =head1 AUTHOR
 
