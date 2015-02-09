@@ -17,6 +17,10 @@ $VERSION = eval $VERSION;
 
 LWP::JSON::Tiny - use JSON natively with LWP objects
 
+=head1 VERSION
+
+This is version 0.001.
+
 =head1 SYNOPSIS
 
  my $user_agent = LWP::UserAgent::JSON->new;
