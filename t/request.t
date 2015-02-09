@@ -24,7 +24,7 @@ Test::More::done_testing();
 sub isa {
     my $request = $tested_class->new;
     isa_ok($request, 'HTTP::Request', 'This is a subclass of HTTP::Request');
-    can_ok($request, 'add_json_content');
+    can_ok($request, 'json_content');
 }
 
 sub accept_header {
@@ -37,12 +37,12 @@ sub encode_invalid {
     my $request = $tested_class->new;
     my $scalar = 42;
     ok(
-        exception { $request->add_json_content(\$scalar) },
+        exception { $request->json_content(\$scalar) },
         'Cannot add arbitrary scalar references as JSON'
     );
     ok(
         exception {
-            $request->add_json_content(bless 'foo' => 'Package::Thing')
+            $request->json_content(bless 'foo' => 'Package::Thing')
         },
         'Cannot add blessed objects as JSON'
     );
@@ -51,7 +51,7 @@ sub encode_invalid {
 sub encode_valid {
     my $request = $tested_class->new;
     is($request->content_type, '', 'No content type at first');
-    $request->add_json_content({foo => ['foo', 'bar', { baz => 'bletch'}]});
+    $request->json_content({foo => ['foo', 'bar', { baz => 'bletch'}]});
     is(
         $request->decoded_content,
         '{"foo":["foo","bar",{"baz":"bletch"}]}',
@@ -66,7 +66,7 @@ sub encode_unicode {
     # PILE OF POO.
     # Unicode: U+1F4A9 (U+D83D U+DCA9), UTF-8: F0 9F 92 A9
     my $request = $tested_class->new;
-    $request->add_json_content("\N{PILE OF POO}");
+    $request->json_content("\N{PILE OF POO}");
     is(length($request->content),
         6, '6 bytes in the raw content: 4 bytes of poo plus quotes');
     is_deeply(

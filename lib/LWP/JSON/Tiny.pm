@@ -18,7 +18,7 @@ LWP::JSON::Tiny - use JSON natively with LWP objects
 
  my $user_agent = LWP::UserAgent::JSON->new;
  my $request = HTTP::Request::JSON->new(POST => "$url_prefix/upload_dance");
- $request->add_json_content({ contents => [qw(badger mushroom snake)] });
+ $request->json_content({ contents => [qw(badger mushroom snake)] });
  my $response = $user_agent->request($request);
  if (my $upload_id = $response->json_content->{upload}{id}) {
      print "Uploaded Weebl rip-off: $upload_id\n";
@@ -38,8 +38,8 @@ There are three classes in this distribution:
 =item HTTP::Request::JSON
 
 A subclass of HTTP::Request. It automatically sets the Accept header to
-C<application/json>, and implements an
-L<HTTP::Request::JSONE<sol>add_content_jsonE<verbar>add_content_json> method
+C<application/json>, and implements a
+L<HTTP::Request::JSONE<sol>json_contentE<verbar>json_content> method
 which takes a JSONable data structure and sets the content-type.
 
 =item HTTP::Response::JSON

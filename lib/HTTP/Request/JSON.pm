@@ -51,7 +51,7 @@ sub new {
     return $self;
 }
 
-=head2 add_json_content
+=head2 json_content
 
  In: $perl_data
  Out: $success
@@ -66,7 +66,7 @@ encoding errors.
 
 =cut
 
-sub add_json_content {
+sub json_content {
     my ($self, $perl_data) = @_;
 
     ### TODO: should we allow people to override these arguments?
@@ -79,7 +79,7 @@ sub add_json_content {
         allow_blessed   => 0,
         convert_blessed => 0
     );
-    $self->add_content(Encode::encode('UTF8', $json->encode($perl_data)));
+    $self->content(Encode::encode('UTF8', $json->encode($perl_data)));
     $self->content_type('application/json');
     return $self->decoded_content;
 }
