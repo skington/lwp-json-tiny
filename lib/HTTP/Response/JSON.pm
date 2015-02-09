@@ -7,6 +7,8 @@ no warnings 'uninitialized';
 use LWP::JSON::Tiny;
 use parent 'HTTP::Response';
 
+use Encode;
+
 our $VERSION = $LWP::JSON::Tiny::VERSION;
 
 =head1 NAME
@@ -40,7 +42,31 @@ sub json_content {
     my ($self) = @_;
 
     return if $self->content_type !~ m{^ application/json }x;
+    if ($self->decoded_content !~ /\S/) {
+        return;
+    } else {
+        my $json = LWP::JSON::Tiny->json_object;
+        return $json->decode($self->decoded_content);
+    }
     return $self->decoded_content;
+}
+
+=head2 content_is_text
+
+Always returns true if this is application/json, contrary to what
+HTTP::Message says by default, to make sure that decoded_content is
+properly decoded as a Unicode string.
+
+=cut
+
+sub content_is_text {
+    my ($self) = @_;
+
+    if ($self->content_type eq 'application/json') {
+        return 1;
+    } else {
+        return $self->SUPER::content_is_text;
+    }
 }
 
 =head1 AUTHOR

@@ -31,9 +31,14 @@ accept and content-type headers, remembering how Unicode is supposed to work
 and so on. This is a very simple wrapper around HTTP::Request and
 HTTP::Response that handles all of that for you.
 
-There are three classes in this distribution:
+There are four classes in this distribution:
 
 =over
+
+=item LWP::JSON::Tiny
+
+Pulls in the other classes, and implements a L<json_object> method which
+returns a JSON object, suitable for parsing and emitting JSON.
 
 =item HTTP::Request::JSON
 
@@ -54,6 +59,43 @@ A subclass of LWP::UserAgent. It does only one thing: is a response has
 content-type JSON, it reblesses it into a HTTP::Response::JSON object.
 
 =back
+
+=head2 Class methods
+
+=head3 json_object
+
+ Out: $json
+
+Returns a JSON object, as per JSON::MaybeXS->new. Cached across multiple
+calls for speed.
+
+Note that the JSON object has the utf8 option disabled. I<This is deliberate>.
+The documentation for JSON::XS is very clear that the utf8 option means both
+that it should spit out JSON in UTF8, and that it should expect strings
+passed to it to be in UTF8 encoding. This latter part is daft, and violates
+the best practice that character encoding should be dealt with at the
+outermost layer.
+
+=cut
+
+{
+    my $json;
+
+    sub json_object {
+        return $json if defined $json;
+        ### TODO: should we allow people to override these arguments?
+        ### Or does that not fit with a ::Tiny module?
+        ### Maybe pass them to LWP::JSON::Tiny as import parameters?
+        $json = JSON::MaybeXS->new(
+            utf8            => 0,
+            allow_nonref    => 1,
+            allow_unknown   => 0,
+            allow_blessed   => 0,
+            convert_blessed => 0
+        );
+        return $json;
+    }
+}
 
 =head1 SEE ALSO
 
