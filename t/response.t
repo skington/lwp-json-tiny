@@ -1,7 +1,6 @@
 #!/usr/bin/env perl
 # Tests for HTTP::Response::JSON
 
-use charnames qw(:full);
 use strict;
 use warnings;
 no warnings 'uninitialized';
@@ -25,7 +24,8 @@ Test::More::done_testing();
 
 sub isa {
     my $request = $tested_class->new;
-    isa_ok($request, 'HTTP::Response', 'This is a subclass of HTTP::Response');
+    isa_ok($request, 'HTTP::Response',
+        'This is a subclass of HTTP::Response');
     can_ok($request, 'json_content');
 }
 
@@ -80,7 +80,6 @@ sub decode_unicode {
             chr(0xE2) . chr(0x98) . chr(0x83)
         )
     );
-    $DB::single = 1;
     isnt($response->decoded_content,
         $response->content,
         "Some Unicode encoding has happened in the response");

@@ -1,7 +1,6 @@
 #!/usr/bin/env perl
 # Tests for HTTP::Request::JSON
 
-use charnames qw(:full);
 use strict;
 use warnings;
 no warnings 'uninitialized';
@@ -66,7 +65,7 @@ sub encode_unicode {
     # PILE OF POO.
     # Unicode: U+1F4A9 (U+D83D U+DCA9), UTF-8: F0 9F 92 A9
     my $request = $tested_class->new;
-    $request->json_content("\N{PILE OF POO}");
+    $request->json_content("\x{1f4a9}");
     is(length($request->content),
         6, '6 bytes in the raw content: 4 bytes of poo plus quotes');
     is_deeply(
