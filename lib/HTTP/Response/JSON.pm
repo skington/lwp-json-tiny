@@ -24,7 +24,7 @@ HTTP::Response::JSON - a subclass of HTTP::Response that understands JSON
 =head1 DESCRIPTION
 
 This is a simple subclass of HTTP::Response that implements a method
-L<json_content> which returns the JSON-decoded contents of the response.
+L</json_content> which returns the JSON-decoded contents of the response.
 
 =head2 json_content
 

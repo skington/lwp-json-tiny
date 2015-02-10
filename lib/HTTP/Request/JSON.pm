@@ -32,7 +32,7 @@ HTTP::Request::JSON - a subclass of HTTP::Request that understands JSON
 
 This is a simple subclass of HTTP::Request::JSON that does two things.
 First of all, it sets the Accept header to C<application/json> as soon
-as it's created. Secondly, it implements a L<add_json_content>
+as it's created. Secondly, it implements an L</add_json_content>
 method that adds the supplied data structure to the request, as JSON.
 
 =head2 new

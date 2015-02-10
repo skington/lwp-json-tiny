@@ -1,0 +1,11 @@
+0.002 2015-02-10
+
+	[Features]
+		Added LWP::UserAgent::JSON->rebless_maybe
+
+	[Documentation]
+		Fixed links.
+
+0.001 2015-02-09
+
+	Initial release.

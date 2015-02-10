@@ -40,6 +40,12 @@ sub guess_content_type {
     );
     is(ref($response_text), 'HTTP::Response',
         'Normal HTTP::Response for text file');
+    ok(
+        !$tested_class->rebless_maybe($response_text),
+        'Will not rebless a non-JSON response'
+    );
+    is(ref($response_text), 'HTTP::Response',
+        'Still have a normal HTTP::Response for text file');
 
     # JSON: reblessed and decoded.
     my $request_json
@@ -50,6 +56,11 @@ sub guess_content_type {
     like($response_json->decoded_content,
         qr/Shave yaks/, 'JSON file contains what we expect');
     is(ref($response_json), 'HTTP::Response::JSON',
-        'Got a HTTP::Response::JSON oject for JSON response');
+        'Got a HTTP::Response::JSON object for JSON response');
+    bless $response_json => 'HTTP::Response';
+    ok($tested_class->rebless_maybe($response_json),
+        'Will rebless this JSON response');
+    is(ref($response_json), 'HTTP::Response::JSON',
+        'Got a HTTP::Response::JSON objectagain for JSON response');
 }
 

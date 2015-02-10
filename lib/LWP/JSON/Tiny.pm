@@ -10,7 +10,7 @@ use JSON::MaybeXS;
 use LWP;
 use LWP::UserAgent::JSON;
 
-our $VERSION = '0.001';
+our $VERSION = '0.002';
 $VERSION = eval $VERSION;
 
 =head1 NAME
@@ -31,6 +31,11 @@ This is version 0.001.
      print "Uploaded Weebl rip-off: $upload_id\n";
  }
 
+ my $other_response = $some_other_object->do_stuff(...);
+ if (LWP::UserAgent::JSON->rebless_maybe($other_response)) {
+     do_something($other_response->json_content);
+ }
+
 =head1 DESCRIPTION
 
 A lot of RESTful API integration involves pointless busy work with setting
@@ -44,26 +49,29 @@ There are four classes in this distribution:
 
 =item LWP::JSON::Tiny
 
-Pulls in the other classes, and implements a L<json_object> method which
+Pulls in the other classes, and implements a L</"json_object"> method which
 returns a JSON object, suitable for parsing and emitting JSON.
 
 =item HTTP::Request::JSON
 
 A subclass of HTTP::Request. It automatically sets the Accept header to
 C<application/json>, and implements a
-L<HTTP::Request::JSONE<sol>json_contentE<verbar>json_content> method
+L<json_content|HTTP::Request::JSON/json_content> method
 which takes a JSONable data structure and sets the content-type.
 
 =item HTTP::Response::JSON
 
 A subclass of HTTP::Response. It implements a
-L<HTTP::Response::JSONE<sol>json_contentE<verbar>json_content> method which
+L<json_content|HTTP::Response::JSON/json_content> method which
 decodes the JSON contents into a Perl data structure.
 
 =item LWP::UserAgent::JSON
 
 A subclass of LWP::UserAgent. It does only one thing: is a response has
 content-type JSON, it reblesses it into a HTTP::Response::JSON object.
+It exposes this method L<rebless_maybe|LWP::UserAgent::JSON/rebless_maybe>
+for convenience, if you ever get an HTTP::Response object back from some
+other class.
 
 =back
 
