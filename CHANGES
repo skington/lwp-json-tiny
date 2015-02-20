@@ -1,3 +1,9 @@
+0.003 2015-02-20
+
+	[Prerequisites]
+		This needs a version of HTTP::Message that knows about JSON
+		properly, at least for the tests.
+
 0.002 2015-02-10
 
 	[Features]
