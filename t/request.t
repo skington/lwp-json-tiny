@@ -17,6 +17,7 @@ accept_header();
 encode_invalid();
 encode_valid();
 encode_unicode();
+getter_vs_setter();
 
 Test::More::done_testing();
 
@@ -73,4 +74,22 @@ sub encode_unicode {
         [ord('"'), 0xF0, 0x9F, 0x92, 0xA9, ord('"')],
         'Bytes look fine'
     );
+}
+
+sub getter_vs_setter {
+
+    my $perl_structure = { foo => 'bar' };
+    my $json = '{"foo":"bar"}';
+
+    my $request = $tested_class->new;
+    is($request->decoded_content, '', 'No contents yet');
+    is($request->json_content($perl_structure), $json,
+       'The setter returns JSON');
+    is($request->decoded_content, $json, 'That set the content');
+    is_deeply(
+        $request->json_content,
+        $perl_structure,
+        'The getter returns a decoded Perl structure'
+    );
+    is($request->decoded_content, $json, 'The content is still JSON');
 }

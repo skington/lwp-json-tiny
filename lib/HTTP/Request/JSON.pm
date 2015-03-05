@@ -32,8 +32,9 @@ HTTP::Request::JSON - a subclass of HTTP::Request that understands JSON
 
 This is a simple subclass of HTTP::Request::JSON that does two things.
 First of all, it sets the Accept header to C<application/json> as soon
-as it's created. Secondly, it implements an L</add_json_content>
-method that adds the supplied data structure to the request, as JSON.
+as it's created. Secondly, it implements a L</json_content>
+method that adds the supplied data structure to the request, as JSON,
+or returns the current JSON contents as a Perl structure.
 
 =head2 new
 
@@ -53,26 +54,40 @@ sub new {
 
 =head2 json_content
 
- In: $perl_data
- Out: $success
+ In: $perl_data (optional)
+ Out: $converted_content
 
-Supplied with a valid JSON data structure, sets the request contents
-to be the JSON-encoded version of that data structure, and sets the
-Content-Type header to C<application/json>. Will throw an exception
-if the data structure cannot be converted to JSON.
+A mutator for the request's JSON contents.
+
+As a setter, supplied with a valid JSON data structure, sets the request
+contents to be the JSON-encoded version of that data structure, and sets the
+Content-Type header to C<application/json>. Will throw an exception if the
+data structure cannot be converted to JSON. Returns the resulting string
+contents.
 
 All strings in $perl_data must be Unicode strings, or you will get
 encoding errors.
 
+As a getter, decodes the request contents from JSON
+into a Perl structure, and returns the resulting data structure.
+
 =cut
 
 sub json_content {
-    my ($self, $perl_data) = @_;
+    my $self = shift;
 
     my $json = LWP::JSON::Tiny->json_object;
-    $self->content(Encode::encode('UTF8', $json->encode($perl_data)));
-    $self->content_type('application/json');
-    return $self->decoded_content;
+
+    # Setter
+    if (@_) {
+        $self->content(Encode::encode('UTF8', $json->encode(shift)));
+        $self->content_type('application/json');
+        return $self->decoded_content;
+    }
+
+    # Getter
+    my $perl_data = $json->decode($self->decoded_content);
+    return $perl_data;
 }
 
 =head1 AUTHOR
