@@ -25,7 +25,7 @@ LWP::UserAgent::JSON - a subclass of LWP::UserAgent that understands JSON
 
 This is a simple subclass of LWP::UserAgent which recognises if it gets
 JSON output back, and if so returns an L<HTTP::Response::JSON> object instead
-of a HTTP::Response::JSON object. It exposes the logic of reblessing the
+of a L<HTTP::Response> object. It exposes the logic of reblessing the
 HTTP::Response object in case you get handed a HTTP::Response object by
 some other method.
 
