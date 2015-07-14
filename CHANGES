@@ -1,3 +1,8 @@
+0.006 2015-07-14
+
+	[Documentation]
+		Remove erroneous reference to add_json_content.
+
 0.005 2015-04-20
 
 	[Documentation]

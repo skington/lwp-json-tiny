@@ -20,7 +20,7 @@ HTTP::Request::JSON - a subclass of HTTP::Request that understands JSON
 
  my $request = HTTP::Request::JSON->new(PATCH => "$base_url/death_ray");
  # $request has an Accept header saying it's OK to send JSON back
- $request->add_json_content(
+ $request->json_content(
      {
          self_destruct_mechanism   => 'disabled',
          users_allowed_to_override => [],
