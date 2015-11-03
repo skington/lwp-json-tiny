@@ -76,7 +76,7 @@ into a Perl structure, and returns the resulting data structure.
 sub json_content {
     my $self = shift;
 
-    my $json = LWP::JSON::Tiny->json_object;
+    my $json = $self->json_object;
 
     # Setter
     if (@_) {
@@ -88,6 +88,23 @@ sub json_content {
     # Getter
     my $perl_data = $json->decode($self->decoded_content);
     return $perl_data;
+}
+
+=head2 json_object
+
+ Out: $json_object
+
+Returns an object that knows how to handle the C<encode> and C<decode>
+methods. By default whatever LWP::JSON::Tiny->json_object returns.
+This is what you'd subclass if you wanted to use some other kind of JSON
+object instead.
+
+=cut
+
+sub json_object {
+    my ($self) = @_;
+
+    return LWP::JSON::Tiny->json_object;
 }
 
 =head1 AUTHOR

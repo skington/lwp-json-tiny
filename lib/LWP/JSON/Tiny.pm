@@ -10,7 +10,7 @@ use JSON::MaybeXS;
 use LWP;
 use LWP::UserAgent::JSON;
 
-our $VERSION = '0.006';
+our $VERSION = '0.007';
 $VERSION = eval $VERSION;
 
 =head1 NAME
@@ -19,7 +19,7 @@ LWP::JSON::Tiny - use JSON natively with LWP objects
 
 =head1 VERSION
 
-This is version 0.004.
+This is version 0.007.
 
 =head1 SYNOPSIS
 
@@ -75,6 +75,11 @@ other class.
 
 =back
 
+As befits a ::Tiny distribution, sensible defaults are applied. If you really
+need to tweak this stuff (e.g. you really care about the very slight
+performance impact of sorting all hash keys), look at the individual
+modules' documentation for how you can subclass behaviour.
+
 =head2 Class methods
 
 =head3 json_object
@@ -94,22 +99,37 @@ outermost layer.
 =cut
 
 {
-    my $json;
+    my %json_by_class;
 
     sub json_object {
+        my ($invocant) = @_;
+
+        my $class = ref($invocant) || $invocant;
+        my $json ||= $json_by_class{$class};
         return $json if defined $json;
-        ### TODO: should we allow people to override these arguments?
-        ### Or does that not fit with a ::Tiny module?
-        ### Maybe pass them to LWP::JSON::Tiny as import parameters?
-        $json = JSON::MaybeXS->new(
-            utf8            => 0,
-            allow_nonref    => 1,
-            allow_unknown   => 0,
-            allow_blessed   => 0,
-            convert_blessed => 0
-        );
-        return $json;
+        $json = JSON::MaybeXS->new($class->default_json_arguments);
+        return $json_by_class{$class} = $json;
     }
+}
+
+=head3 default_json_arguments
+
+ Out: %default_json_arguments
+
+The default arguments to pass to JSON::MaybeXS->new. This is what you'd
+subclass if you wanted to change how LWP::JSON::Tiny encoded JSON.
+
+=cut
+
+sub default_json_arguments {
+    return (
+        utf8            => 0,
+        allow_nonref    => 1,
+        allow_unknown   => 0,
+        allow_blessed   => 0,
+        convert_blessed => 0,
+        canonical       => 1,
+    );
 }
 
 =head1 SEE ALSO

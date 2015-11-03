@@ -1,3 +1,15 @@
+0.007 2015-11-03
+
+	[Features]
+		Always sorts output. Modern Perls (5.18+) have arbitrary hash
+		key ordering, so whatever JSON was spat out by a previous
+		version of your code wouldn't necessarily resemble what you'd
+		produce now. The overhead on my system is single digit
+		microseconds, so this seems like a reasonable default.
+
+		The methods that create JSON objects have been exposed so you
+		can subclass this easily if you want to.
+
 0.006 2015-07-14
 
 	[Documentation]
