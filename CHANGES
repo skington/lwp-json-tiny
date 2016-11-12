@@ -5,6 +5,8 @@
 		parameter after $url, turns it into JSON instead of form-encoding
 		it.
 
+		Should handle Unicode better.
+
 0.007 2015-11-03
 
 	[Features]
