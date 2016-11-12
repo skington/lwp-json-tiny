@@ -4,6 +4,8 @@ use strict;
 use warnings;
 no warnings 'uninitialized';
 
+our $VERSION = $LWP::JSON::Tiny::VERSION;
+
 =head1 NAME
 
 HTTP::Message::JSON - a very simple superclass for JSON HTTP messages
