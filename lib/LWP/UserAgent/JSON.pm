@@ -4,6 +4,7 @@ use strict;
 use warnings;
 no warnings 'uninitialized';
 
+use HTTP::Request::JSON;
 use LWP::JSON::Tiny;
 use Scalar::Util ();
 use parent 'LWP::UserAgent';
@@ -23,11 +24,37 @@ LWP::UserAgent::JSON - a subclass of LWP::UserAgent that understands JSON
 
 =head1 DESCRIPTION
 
-This is a simple subclass of LWP::UserAgent which recognises if it gets
+This is a subclass of LWP::UserAgent which recognises if it gets
 JSON output back, and if so returns an L<HTTP::Response::JSON> object instead
 of a L<HTTP::Response> object. It exposes the logic of reblessing the
 HTTP::Response object in case you get handed a HTTP::Response object by
 some other method.
+
+It also offers a handful of convenience methods to directly convert
+parameters into JSON for POST, PUT and PATCH requests.
+
+=head2 post_json
+
+Like LWP::UserAgent::post, except for when it's called as
+C<post_json($url, $form_ref, ...)>, in which case $form_ref is turned into
+JSON.
+
+=cut
+
+sub post_json {
+    my $self = shift;
+    my $url = shift;
+
+    if (ref($_[0])) {
+        my $request = HTTP::Request::JSON->new;
+        $request->json_content($_[0]);
+        splice(@_, 0, 1,
+            Content => $request->content, # Or is it decoded_content?
+            'Content-Type' => $request->content_type,
+        );
+    }
+    $self->SUPER::post($url, @_);
+}
 
 =head2 simple_request
 

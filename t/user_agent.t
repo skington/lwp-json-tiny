@@ -10,10 +10,14 @@ use Test::More;
 
 use LWP::UserAgent::JSON;
 
+use lib "$FindBin::Bin/lib";
+use LWP::Protocol::record;
+
 my $tested_class = 'LWP::UserAgent::JSON';
 
 isa();
 guess_content_type();
+post_simple();
 
 Test::More::done_testing();
 
@@ -62,5 +66,123 @@ sub guess_content_type {
         'Will rebless this JSON response');
     is(ref($response_json), 'HTTP::Response::JSON',
         'Got a HTTP::Response::JSON objectagain for JSON response');
+}
+
+sub post_simple {
+    my $user_agent = $tested_class->new;
+
+    # Baseline test: POST works as normal with no arguments.
+    response_matches(
+        'A simple POST with no arguments looks fine',
+        sub { $user_agent->post('record::example.com/foo') },
+        <<VANILLA_RESPONSE);
+POST record::example.com/foo
+User-Agent: libwww-perl/6.13
+Content-Length: 0
+Content-Type: application/x-www-form-urlencoded
+
+VANILLA_RESPONSE
+
+    # Baseline post with arguments is URL-encoded,
+    response_matches(
+        'A simple POST with arguments is URL-encoded',
+        sub {
+            $user_agent->post('record::nic.meh/', { foo => 'bar' });
+        },
+        <<FORM_RESPONSE
+POST record::nic.meh/
+User-Agent: libwww-perl/6.13
+Content-Length: 7
+Content-Type: application/x-www-form-urlencoded
+
+foo=bar
+FORM_RESPONSE
+    );
+
+    # post_json with no arguments does nothing fancy.
+    response_matches(
+        'A simple post_json with no arguments looks fine',
+        sub { $user_agent->post_json('record::example.com/foo') },
+        <<VANILLA_RESPONSE);
+POST record::example.com/foo
+User-Agent: libwww-perl/6.13
+Content-Length: 0
+Content-Type: application/x-www-form-urlencoded
+
+VANILLA_RESPONSE
+
+    # post_json with simple arguments is JSON.
+    response_matches(
+        'post_json with simple arguments is JSON-encoded',
+        sub {
+            $user_agent->post_json('record::nic.meh/', { foo => 'bar' });
+        },
+        <<FORM_RESPONSE
+POST record::nic.meh/
+User-Agent: libwww-perl/6.13
+Content-Length: 13
+Content-Type: application/json
+
+{"foo":"bar"}
+FORM_RESPONSE
+    );
+
+    # post_json with complex arguments is JSON and canonicalised.
+    response_matches(
+        'post_json with simple arguments is JSON-encoded',
+        sub {
+            $user_agent->post_json(
+                'record::many.many.subdomains.enterprisey.wtf/'
+                    . 'redundant/subdomains.servlet?guid=not-even-a-guid',
+                [
+                    'Hello there',
+                    'Would you like me to tell you a story?',
+                    'Oh go on',
+                    'This next stuff will be sorted' => {
+                        title => 'Shaggy dog story',
+                        setup =>
+                            'A guy walks into a bar, but very quickly...',
+                        intermediate => [
+                            'this one thing happens',
+                            'then the other',
+                            'then even more things',
+                        ],
+                        punchline => '...it was cheese',
+                        comment   => 'Sorting spoils the joke',
+                    }
+                ]
+                )
+        },
+        <<FORM_RESPONSE
+POST record::many.many.subdomains.enterprisey.wtf/redundant/subdomains.servlet?guid=not-even-a-guid
+User-Agent: libwww-perl/6.13
+Content-Length: 333
+Content-Type: application/json
+
+FORM_RESPONSE
+            . '['
+            . '"Hello there","Would you like me to tell you a story?",'
+            . '"Oh go on","This next stuff will be sorted",'
+            . '{"comment":"Sorting spoils the joke",'
+            . '"intermediate":['
+            . '"this one thing happens","then the other",'
+            . '"then even more things"'
+            . '],'
+            . '"punchline":"...it was cheese",'
+            . '"setup":"A guy walks into a bar, but very quickly...",'
+            . '"title":"Shaggy dog story"}'
+            . ']'
+            . "\n"
+    );
+}
+
+sub response_matches {
+    my ($title, $do_request, $expected) = @_;
+
+    LWP::Protocol::record->clear_requests;
+    $do_request->();
+    my @requests = LWP::Protocol::record->requests;
+
+    is($requests[0]->as_string, $expected, $title);
 }
 
