@@ -1,6 +1,8 @@
 #!/usr/bin/env perl
 # Tests for LWP::UserAgent::JSON
 
+use utf8;
+use feature 'unicode_strings';
 use strict;
 use warnings;
 no warnings 'uninitialized';
@@ -18,6 +20,7 @@ my $tested_class = 'LWP::UserAgent::JSON';
 isa();
 guess_content_type();
 post_simple();
+post_encoding();
 
 Test::More::done_testing();
 
@@ -119,6 +122,7 @@ VANILLA_RESPONSE
         },
         <<FORM_RESPONSE
 POST record::nic.meh/
+Accept: application/json
 User-Agent: TestStuff
 Content-Length: 13
 Content-Type: application/json
@@ -155,6 +159,7 @@ FORM_RESPONSE
         },
         <<FORM_RESPONSE
 POST record::many.many.subdomains.enterprisey.wtf/redundant/subdomains.servlet?guid=not-even-a-guid
+Accept: application/json
 User-Agent: TestStuff
 Content-Length: 333
 Content-Type: application/json
@@ -215,16 +220,67 @@ Content-Type: text/xml
 <brackets type="angle">lolnope</brackets>
 FORM_RESPONSE
     );
+}
 
+sub post_encoding {
+    # I wanted to put Unicode into the user-agent, but that apparently
+    # breaks LWP::UserAgent.
+    my $user_agent = $tested_class->new(agent => "Snowman");
+
+    # OK, some standard difficult Unicode characters.
+
+    # â˜ƒ
+    # Snowman
+    # Unicode: U+2603, UTF-8: E2 98 83
+    my $snowman = "\x{2603}";
+
+    # í ½í²©
+    # Pile of poo
+    # Unicode: U+1F4A9, UTF-8: F0 9F 92 A9
+    my $pile_of_poo = "\x{1f4a9}";
+
+    # Post with URL-encoding deals with Unicode OKish.
+    decoded_content_matches(
+        'Vanilla LWP copes with hard Unicode',
+        sub {
+            $user_agent->post('record::stuff', { php => $pile_of_poo });
+        },
+        'php=%F0%9F%92%A9'
+    );
+
+    # Post with JSON encoding is fine.
+    decoded_content_matches(
+        'post_json also copes with Unicode',
+        sub {
+            $user_agent->post_json('record::more-stuff',
+                [{ php => $pile_of_poo }, { perl => $snowman }]);
+        },
+        qq{[{"php":"$pile_of_poo"},{"perl":"$snowman"}]},
+    );
+    
 }
 
 sub response_matches {
     my ($title, $do_request, $expected) = @_;
 
+    my $request = _do_request($do_request);
+
+    is($request->as_string, $expected, $title);
+}
+
+sub decoded_content_matches {
+    my ($title, $do_request, $expected) = @_;
+
+    my $request = _do_request($do_request);
+
+    is($request->decoded_content, $expected, $title);
+}
+
+sub _do_request {
+    my ($do_request) = @_;
     LWP::Protocol::record->clear_requests;
     $do_request->();
     my @requests = LWP::Protocol::record->requests;
-
-    is($requests[0]->as_string, $expected, $title);
+    return $requests[0];
 }
 

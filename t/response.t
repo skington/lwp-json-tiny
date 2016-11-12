@@ -36,8 +36,8 @@ sub pass_through {
         = '<html><head><title>Meh</title></head>'
         . '<body><p>Meh</p></body></html>';
     $response->content($html);
-    is($response->decoded_content,
-        $html, 'Decoded content via standard LWP is what we expect');
+    is($response->decoded_content, $html,
+       'Decoded content via standard LWP is what we expect');
     is($response->json_content, undef, q{Don't even try to decode it});
 }
 

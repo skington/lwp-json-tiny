@@ -62,18 +62,30 @@ sub encode_valid {
 }
 
 sub encode_unicode {
+    return if $^V lt v5.13.8;
+    use if $^V ge v5.13.8, feature => 'unicode_strings';
+
     # OK, time to try the most famous Unicode character of all,
     # PILE OF POO.
     # Unicode: U+1F4A9 (U+D83D U+DCA9), UTF-8: F0 9F 92 A9
-    my $request = $tested_class->new;
-    $request->json_content("\x{1f4a9}");
-    is(length($request->content), 6,
-       '6 bytes in the raw content: 4 bytes of poo plus quotes');
+    my $pile_of_poo = "\x{1f4a9}";
+    my $request     = $tested_class->new;
+    $request->json_content($pile_of_poo);
+    is(length($request->content),
+        6, '6 bytes in the raw content: 4 bytes of poo plus quotes');
     is_deeply(
         [map { ord($_) } split(//, $request->content)],
         [ord('"'), 0xF0, 0x9F, 0x92, 0xA9, ord('"')],
         'Bytes look fine'
     );
+    is(length($request->decoded_content),
+        3, '3 code points in the decoded content: 1 pile of poo plus quotes');
+    is_deeply(
+        [map { ord($_) } split(//, $request->decoded_content)],
+        [ord('"'), 0x1f4a9, ord('"')],
+        'Code points look fine'
+    );
+    is($request->json_content, $pile_of_poo, 'That decodes to JSON fine');
 }
 
 sub getter_vs_setter {
