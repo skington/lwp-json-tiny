@@ -46,6 +46,25 @@ sub post_json {
     my $self = shift;
     my $url = shift;
 
+    $self->SUPER::post($url, $self->_mangle_request_arguments(@_));
+}
+
+=head3 put_json
+
+A variant on LWP::UserAgent::put with the same transformations as post_json.
+
+=cut
+
+sub put_json {
+    my $self = shift;
+    my $url = shift;
+
+    $self->SUPER::put($url, $self->_mangle_request_arguments(@_));
+}
+
+sub _mangle_request_arguments {
+    my $self = shift;
+
     # If we have a reference as the first argument, remove it and replace
     # it with a series of standard headers, so HTTP::Request::Common doesn't
     # do its magic.
@@ -59,8 +78,7 @@ sub post_json {
             Accept         => 'application/json'
         );
     }
-
-    $self->SUPER::post($url, @_);
+    return @_;
 }
 
 =head2 simple_request

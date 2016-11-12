@@ -21,6 +21,7 @@ isa();
 guess_content_type();
 post_simple();
 post_encoding();
+put();
 
 Test::More::done_testing();
 
@@ -258,6 +259,26 @@ sub post_encoding {
         qq{[{"php":"$pile_of_poo"},{"perl":"$snowman"}]},
     );
     
+}
+
+sub put {
+    my $user_agent = $tested_class->new(agent => 'TestStuff');
+
+    response_matches(
+        'put_json with simple arguments is JSON-encoded',
+        sub {
+            $user_agent->post_json('record::updatethis.wtf/', ['things']);
+        },
+        <<FORM_RESPONSE
+POST record::updatethis.wtf/
+Accept: application/json
+User-Agent: TestStuff
+Content-Length: 10
+Content-Type: application/json
+
+["things"]
+FORM_RESPONSE
+    );
 }
 
 sub response_matches {
