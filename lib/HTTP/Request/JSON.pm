@@ -4,7 +4,7 @@ use strict;
 use warnings;
 no warnings 'uninitialized';
 
-use parent 'HTTP::Request';
+use parent 'HTTP::Message::JSON', 'HTTP::Request';
 
 our $VERSION = $LWP::JSON::Tiny::VERSION;
 
