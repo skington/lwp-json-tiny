@@ -1,3 +1,10 @@
+0.008 2016-11-12
+	[Features]
+		New method LWP::UserAgent::JSON->post_json acts as the equivalent
+		of LWP::UserAgent->post, but if a reference is passed as the
+		parameter after $url, turns it into JSON instead of form-encoding
+		it.
+
 0.007 2015-11-03
 
 	[Features]
