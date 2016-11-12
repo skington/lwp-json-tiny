@@ -22,6 +22,7 @@ guess_content_type();
 post_simple();
 post_encoding();
 put();
+patch();
 
 Test::More::done_testing();
 
@@ -267,16 +268,36 @@ sub put {
     response_matches(
         'put_json with simple arguments is JSON-encoded',
         sub {
-            $user_agent->post_json('record::updatethis.wtf/', ['things']);
+            $user_agent->put_json('record::updatethis.wtf/', ['things']);
         },
         <<FORM_RESPONSE
-POST record::updatethis.wtf/
+PUT record::updatethis.wtf/
 Accept: application/json
 User-Agent: TestStuff
 Content-Length: 10
 Content-Type: application/json
 
 ["things"]
+FORM_RESPONSE
+    );
+}
+
+sub patch {
+    my $user_agent = $tested_class->new(agent => 'TestStuff');
+
+    response_matches(
+        'patch_json with simple arguments is JSON-encoded',
+        sub {
+            $user_agent->patch_json('record::fancy.ooo/', {better => 'yes'});
+        },
+        <<FORM_RESPONSE
+PATCH record::fancy.ooo/
+Accept: application/json
+User-Agent: TestStuff
+Content-Length: 16
+Content-Type: application/json
+
+{"better":"yes"}
 FORM_RESPONSE
     );
 }

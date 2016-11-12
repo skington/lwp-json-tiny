@@ -62,6 +62,36 @@ sub put_json {
     $self->SUPER::put($url, $self->_mangle_request_arguments(@_));
 }
 
+=head3 patch_json
+
+As post_json and put_json, but generates a PATCH request instead.
+
+=cut
+
+sub patch_json {
+    my $self = shift;
+    my $url = shift;
+
+    $self->patch($url, $self->_mangle_request_arguments(@_));
+}
+
+=head3 patch
+
+LWP::UserAgent doesn't actually implement a patch method, so it's defined
+here.
+
+=cut
+
+sub patch {
+    require HTTP::Request::Common;
+    my ($self, @parameters) = @_;
+    my @suff = $self->_process_colonic_headers(\@parameters,
+        (ref($parameters[1]) ? 2 : 1));
+    return $self->request(
+        HTTP::Request::Common::request_type_with_data('PATCH', @parameters),
+        @suff);
+}
+
 sub _mangle_request_arguments {
     my $self = shift;
 
