@@ -69,7 +69,7 @@ sub guess_content_type {
 }
 
 sub post_simple {
-    my $user_agent = $tested_class->new;
+    my $user_agent = $tested_class->new(agent => 'TestStuff');
 
     # Baseline test: POST works as normal with no arguments.
     response_matches(
@@ -77,7 +77,7 @@ sub post_simple {
         sub { $user_agent->post('record::example.com/foo') },
         <<VANILLA_RESPONSE);
 POST record::example.com/foo
-User-Agent: libwww-perl/6.13
+User-Agent: TestStuff
 Content-Length: 0
 Content-Type: application/x-www-form-urlencoded
 
@@ -91,7 +91,7 @@ VANILLA_RESPONSE
         },
         <<FORM_RESPONSE
 POST record::nic.meh/
-User-Agent: libwww-perl/6.13
+User-Agent: TestStuff
 Content-Length: 7
 Content-Type: application/x-www-form-urlencoded
 
@@ -105,7 +105,7 @@ FORM_RESPONSE
         sub { $user_agent->post_json('record::example.com/foo') },
         <<VANILLA_RESPONSE);
 POST record::example.com/foo
-User-Agent: libwww-perl/6.13
+User-Agent: TestStuff
 Content-Length: 0
 Content-Type: application/x-www-form-urlencoded
 
@@ -119,7 +119,7 @@ VANILLA_RESPONSE
         },
         <<FORM_RESPONSE
 POST record::nic.meh/
-User-Agent: libwww-perl/6.13
+User-Agent: TestStuff
 Content-Length: 13
 Content-Type: application/json
 
@@ -155,7 +155,7 @@ FORM_RESPONSE
         },
         <<FORM_RESPONSE
 POST record::many.many.subdomains.enterprisey.wtf/redundant/subdomains.servlet?guid=not-even-a-guid
-User-Agent: libwww-perl/6.13
+User-Agent: TestStuff
 Content-Length: 333
 Content-Type: application/json
 
@@ -174,6 +174,48 @@ FORM_RESPONSE
             . ']'
             . "\n"
     );
+
+    # If Content and Content-Type are specified normally, they happen.
+    response_matches(
+        'You could always specify content and content-type',
+        sub {
+            $user_agent->post(
+                'record::rickroll.wtf',
+                'Content-Type' => 'music/midi',
+                Content        => 'Will give you up at some point after all'
+                )
+        },
+        <<FORM_RESPONSE
+POST record::rickroll.wtf
+User-Agent: TestStuff
+Content-Length: 40
+Content-Type: music/midi
+
+Will give you up at some point after all
+FORM_RESPONSE
+    );
+
+    # The same is true for post_json
+    response_matches(
+        'You can also override the JSON we generate',
+        sub {
+            $user_agent->post(
+                'record::new-and-shiny',
+                { stuff => 'awesome' },
+                'Content-Type' => 'text/xml',
+                Content        => '<brackets type="angle">lolnope</brackets>',
+            );
+        },
+        <<FORM_RESPONSE
+POST record::new-and-shiny
+User-Agent: TestStuff
+Content-Length: 41
+Content-Type: text/xml
+
+<brackets type="angle">lolnope</brackets>
+FORM_RESPONSE
+    );
+
 }
 
 sub response_matches {

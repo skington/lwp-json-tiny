@@ -37,7 +37,8 @@ parameters into JSON for POST, PUT and PATCH requests.
 
 Like LWP::UserAgent::post, except for when it's called as
 C<post_json($url, $form_ref, ...)>, in which case $form_ref is turned into
-JSON.
+JSON. Obviously if you specify Content-Type or Content in subsequent header
+arguments they'll take precedence.
 
 =cut
 
