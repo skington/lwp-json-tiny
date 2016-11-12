@@ -48,7 +48,6 @@ sub json_content {
         my $json = LWP::JSON::Tiny->json_object;
         return $json->decode($self->decoded_content);
     }
-    return $self->decoded_content;
 }
 
 =head1 AUTHOR
