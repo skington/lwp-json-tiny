@@ -46,14 +46,20 @@ sub post_json {
     my $self = shift;
     my $url = shift;
 
+    # If we have a reference as the first argument, remove it and replace
+    # it with a series of standard headers, so HTTP::Request::Common doesn't
+    # do its magic.
     if (ref($_[0])) {
-        my $request = HTTP::Request::JSON->new;
-        $request->json_content($_[0]);
-        splice(@_, 0, 1,
-            Content => $request->content, # Or is it decoded_content?
-            'Content-Type' => $request->content_type,
+        my $throwaway_request = HTTP::Request::JSON->new;
+        $throwaway_request->json_content($_[0]);
+        splice(
+            @_, 0, 1,
+            Content        => $throwaway_request->content,
+            'Content-Type' => $throwaway_request->content_type,
+            Accept         => 'application/json'
         );
     }
+
     $self->SUPER::post($url, @_);
 }
 
@@ -67,6 +73,7 @@ object instead of a L<HTTP::Response> object if the response is JSON.
 sub simple_request {
     my $self = shift;
 
+    $self->rebless_maybe($_[0]);
     my $response = $self->SUPER::simple_request(@_);
     $self->rebless_maybe($response);
     return $response;
@@ -74,24 +81,30 @@ sub simple_request {
 
 =head2 rebless_maybe
 
- In: $response
+ In: $object
  Out: $reblessed
 
-Supplied with a HTTP::Response object, looks to see if it's a JSON
-object, and if so reblesses it to be a HTTP::Response::JSON object.
-Returns whether it reblessed the object or not.
+Supplied with a HTTP::Request or HTTP::Response object, looks to see if it's a
+JSON object, and if so reblesses it to be a HTTP::Request::JSON or
+HTTP::Response::JSON object respectively. Returns whether it reblessed the
+object or not.
 
 =cut
 
 sub rebless_maybe {
-    my ($response) = pop;
+    my ($object) = pop;
 
-    if (   Scalar::Util::blessed($response)
-        && $response->isa('HTTP::Response')
-        && $response->content_type eq 'application/json')
+    if (   Scalar::Util::blessed($object)
+        && $object->can('content_type')
+        && $object->content_type eq 'application/json')
     {
-        bless $response => 'HTTP::Response::JSON';
-        return 1;
+        if ($object->isa('HTTP::Response')) {
+            bless $object => 'HTTP::Response::JSON';
+            return 1;
+        } elsif ($object->isa('HTTP::Request')) {
+            bless $object => 'HTTP::Request::JSON';
+            return 1;
+        }
     }
     return 0;
 }
