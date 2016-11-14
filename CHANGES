@@ -1,5 +1,15 @@
+0.009 2016-11-14
+
+    [Prerequisites]
+
+        Bump the required version of HTTP::Request::Common to the version
+        that actually allows us to properly call HTTP::Request::Common::post
+        and ...::put.	
+
 0.008 2016-11-12
+
     [Features]
+
         New methods LWP::UserAgent::JSON->post_json, put_json and patch_json
         act as the equivalent of LWP::UserAgent->post, ->put and ->patch (if
         it actually implemented a patch method, which it doesn't), but if a
