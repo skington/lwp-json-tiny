@@ -1,3 +1,11 @@
+0.010 2016-11-18
+
+    [Bug fix]
+
+        Work on older versions of Perl - don't use unicode_strings in the
+        tests that don't need that feature, and explicitly specify parent
+        as a prerequisite as that wasn't in core until 5.10.1.
+
 0.009 2016-11-14
 
     [Prerequisites]

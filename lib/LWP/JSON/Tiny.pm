@@ -10,7 +10,7 @@ use JSON::MaybeXS;
 use LWP;
 use LWP::UserAgent::JSON;
 
-our $VERSION = '0.009';
+our $VERSION = '0.010';
 $VERSION = eval $VERSION;
 
 =head1 NAME
