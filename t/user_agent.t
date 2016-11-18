@@ -2,7 +2,6 @@
 # Tests for LWP::UserAgent::JSON
 
 use utf8;
-use feature 'unicode_strings';
 use strict;
 use warnings;
 no warnings 'uninitialized';
@@ -225,6 +224,9 @@ FORM_RESPONSE
 }
 
 sub post_encoding {
+    return if $^V lt v5.13.8;
+    use if $^V ge v5.13.8, feature => 'unicode_strings';
+
     # I wanted to put Unicode into the user-agent, but that apparently
     # breaks LWP::UserAgent.
     my $user_agent = $tested_class->new(agent => "Snowman");
