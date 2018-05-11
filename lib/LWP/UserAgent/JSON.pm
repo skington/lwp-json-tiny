@@ -52,6 +52,8 @@ sub post_json {
 =head3 put_json
 
 A variant on LWP::UserAgent::put with the same transformations as post_json.
+This requires that your version of LWP supports PUT, i.e. you have LWP 6.00
+or later.
 
 =cut
 
@@ -59,12 +61,18 @@ sub put_json {
     my $self = shift;
     my $url = shift;
 
-    $self->SUPER::put($url, $self->_mangle_request_arguments(@_));
+    my @parameters = $self->_mangle_request_arguments(@_);
+    if ($self->SUPER::can('put')) {
+        $self->SUPER::put($url, @parameters);
+    } else {
+        $self->_send_unimplemented_http_method(PUT => $url, @parameters);
+    }
 }
 
 =head3 patch_json
 
 As post_json and put_json, but generates a PATCH request instead.
+As put_json, you need a semi-modern version of LWP for this.
 
 =cut
 
@@ -83,12 +91,17 @@ here.
 =cut
 
 sub patch {
-    require HTTP::Request::Common;
     my ($self, @parameters) = @_;
+    $self->_send_unimplemented_http_method(PATCH => @parameters);
+}
+
+sub _send_unimplemented_http_method {
+    require HTTP::Request::Common;
+    my ($self, $method, @parameters) = @_;
     my @suff = $self->_process_colonic_headers(\@parameters,
         (ref($parameters[1]) ? 2 : 1));
     return $self->request(
-        HTTP::Request::Common::request_type_with_data('PATCH', @parameters),
+        HTTP::Request::Common::request_type_with_data($method, @parameters),
         @suff);
 }
 
@@ -142,18 +155,40 @@ object or not.
 sub rebless_maybe {
     my ($object) = pop;
 
-    if (   Scalar::Util::blessed($object)
-        && $object->can('content_type')
-        && $object->content_type eq 'application/json')
-    {
-        if ($object->isa('HTTP::Response')) {
-            bless $object => 'HTTP::Response::JSON';
-            return 1;
-        } elsif ($object->isa('HTTP::Request')) {
-            bless $object => 'HTTP::Request::JSON';
-            return 1;
+    # Obviously, if the object isn't blessed yet, it doesn't make sense
+    # to rebless it.
+    return 0 if !Scalar::Util::blessed($object);
+
+    # If the object doesn't have a content_type method, maybe that's because
+    # it doesn't have one *yet*?
+    # HTTP::Message is known to build methods like this via an AUTOLOAD,
+    # on demand, so if e.g. this was the response to a GET request where
+    # there was no explicit content type set in the request, and we hadn't
+    # done any content-type stuff in the same process previously, this will
+    # be the first time anyone has even tried to call this method.
+    # So see if we can trigger the creation of this method.
+    if (!$object->can('content_type')) {
+        if ($object->isa('HTTP::Message')) {
+            eval {
+                $object->content_type;
+            }
         }
     }
+    return 0 if !$object->can('content_type');
+
+    # And if this isn't JSON, leave it as it is.
+    return 0 if $object->content_type ne 'application/json';
+
+    # OK, time to rebless it into one of our objects instead.
+    if ($object->isa('HTTP::Response')) {
+        bless $object => 'HTTP::Response::JSON';
+        return 1;
+    } elsif ($object->isa('HTTP::Request')) {
+        bless $object => 'HTTP::Request::JSON';
+        return 1;
+    }
+
+    # Huh. What the hell did we have, then? Oh well.
     return 0;
 }
 
