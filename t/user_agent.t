@@ -39,8 +39,8 @@ sub guess_content_type {
     my $request_text
         = HTTP::Request->new(GET => "file://$dir_fixtures/test.txt");
     my $response_text = $user_agent->request($request_text);
-    is($response_text->content_type,
-        'text/plain', 'Text file recognised as text');
+    is($response_text->content_type, 'text/plain',
+        'Text file recognised as text');
     like(
         $response_text->decoded_content,
         qr/The quick brown fox/,
@@ -59,8 +59,8 @@ sub guess_content_type {
     my $request_json
         = HTTP::Request->new(GET => "file://$dir_fixtures/test.json");
     my $response_json = $user_agent->request($request_json);
-    is($response_json->content_type,
-        'application/json', 'JSON file recognised as JSON');
+    is($response_json->content_type, 'application/json',
+        'JSON file recognised as JSON');
     like($response_json->decoded_content,
         qr/Shave yaks/, 'JSON file contains what we expect');
     is(ref($response_json), 'HTTP::Response::JSON',
