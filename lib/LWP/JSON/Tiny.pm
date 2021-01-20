@@ -68,7 +68,7 @@ decodes the JSON contents into a Perl data structure.
 
 =item LWP::UserAgent::JSON
 
-A subclass of LWP::UserAgent. It does only one thing: is a response has
+A subclass of LWP::UserAgent. It does only one thing: if a response has
 content-type JSON, it reblesses it into a HTTP::Response::JSON object.
 It exposes this method L<rebless_maybe|LWP::UserAgent::JSON/rebless_maybe>
 for convenience, if you ever get an HTTP::Response object back from some

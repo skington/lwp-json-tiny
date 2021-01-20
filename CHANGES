@@ -1,3 +1,10 @@
+0.015 NEXT VERSION - version number NOT UPDATED!
+
+    [Toolchain]
+
+        Auto-generate META.json. This was GitHub PR #4 - thanks Mohammad
+        Anwar!
+
 0.014 2018-05-11
 
     [Documentation]
